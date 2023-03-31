@@ -5,7 +5,8 @@ const userRoutes = Router();
 const UserController = require('../controllers/UsersCotroller');
 const userController = new UserController();
 
-userController.post('/', userController.create);
+userRoutes.post('/', userController.create);
+userRoutes.put('/:id', userController.update);
 
 
 module.exports = userRoutes;
