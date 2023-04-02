@@ -4,7 +4,7 @@ class NotesController{
   async create(req,res){
     //recuperando id do usuário.
     const { user_id } = req.params;
-    //recuperando os dados informados.
+    //recuperando os dados passados pelo body.
     const { title, description , rating, tags } = req.body;
 
     //adicionando os dados da nota a tabela notes.
@@ -22,9 +22,9 @@ class NotesController{
             name,
             user_id
         }
-    })
-    console.log(tagsInsert);
+    });
 
+    //inserindo os dados na tabela de tags.
     await knex('movies_tags').insert(tagsInsert);
 
     return res.json();
@@ -32,11 +32,16 @@ class NotesController{
   }
 
   async show(req,res){
+    // recuperando o id da nota.
     const { id } = req.params;
     
+    // buscando na tabela movies_notes a nota que tenha o id igual o id recebido.
     const note = await knex('movies_notes').where({ id }).first();
+    
+    // buscando na tabela movies_tags a tag que tenha o note_id igual ao id recebido.
     const tags = await knex('movies_tags').where({ note_id: id }).orderBy('name');
 
+    // retornando um objeto json com as informações da nota e tags.
     return res.json({
         ...note,
         tags
@@ -44,18 +49,22 @@ class NotesController{
   }
 
   async delete(req,res){
+    // recuperando o id.
     const { id } = req.params;
 
+    // buscando a nota pelo id e usando a função delete para deleta-la
     await knex('movies_notes').where({ id }).delete();
 
     return res.json();
   }
 
   async index(req,res){
+    // recuperando os dados através da query.
     const { title, user_id, tags } = req.query;
 
     let notes;
 
+    // se existir tags vai ser feito um filtro através delas, se não vai ser feito pelo id do usuário
     if(tags){
       const filterTags = tags.split(',').map(tag => tag.trim());
 
@@ -79,6 +88,7 @@ class NotesController{
 
     //filtro no banco de dados aonde o user_id seja igual o id do usuário
     const userTags = await knex('movies_tags').where({ user_id });
+    
     const notesWithTags = notes.map(note => {
       const noteTags = userTags.filter(tag => tag.note_id === note.id);
 
