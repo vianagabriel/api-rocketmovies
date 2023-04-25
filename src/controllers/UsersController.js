@@ -31,14 +31,13 @@ class UsersController {
     }
 
     async update(req, res) {
-        // Recuperando o id passado pela rota.
-        const { id } = req.params;
 
-        // Recuperando os dados passados pelo body.
         const { name, email, password, old_password } = req.body;
+        const user_id = req.user.id;
+
 
         // Verifica se o usuário existe.
-        const user = await knex('users').where('id', id).first();
+        const user = await knex("users").where({ id: user_id }).first();
 
         // Se user for false então é lançado uma excessão.
         if (!user) {
@@ -46,7 +45,7 @@ class UsersController {
         }
 
         // Verifica se email salvo no banco é igual email recebido pelo body.
-        const userWithUpdatedEmail = await knex('users').where('email', email).first();
+        const userWithUpdatedEmail = await knex('users').where({ email }).first();
 
         // userWithUpdatedEmail verifica se algum usuário no banco de dados foi encontrado com esse email.
         // userWithUpdatedEmail.id !== user.id verifica se o id do usuário salvo no banco é diferente do id do usuário que está tentando fazer a atualização
@@ -80,7 +79,7 @@ class UsersController {
 
         // Atualização dos dados do usuário no banco.
         await knex('users')
-            .where('id', id)
+            .where({ id: user_id })
             .update({
                 name: user.name,
                 email: user.email,
